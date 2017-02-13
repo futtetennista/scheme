@@ -213,6 +213,9 @@ eval all@(List [Atom "car", arg@(List (x:xs))]) =
                          eval $ List [Atom "car", val]
       _            -> return $ x
 
+eval all@(List [Atom "delay", param]) = do
+  val <- eval param
+  return $ Lambda (IFunc $ applyLambda val []) (Map.fromList [])
 
 eval all@(List ((:) x xs)) = do
   env    <- ask
