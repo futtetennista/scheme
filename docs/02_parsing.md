@@ -27,7 +27,7 @@ That converted format, in our case, is `LispVal`.  The library we will use for p
 
 ## About Parsec
 
-Parsec is a monadic parser, and matches text to lexeme then parsing that into an abstract syntax via data constructors.
+[Parsec](http://hackage.haskell.org/package/parsec) is a monadic parser, and matches text to lexeme then parsing that into an abstract syntax via data constructors.
 Thus, for text input, the lexemes, or units of text that define a language feature, are converted a `LispVal` structure (abstract syntax tree).
 These lexemes are individually defined via Parsec, and wholly define the valid lexical structure of our Scheme.
 
