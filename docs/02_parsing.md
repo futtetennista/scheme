@@ -53,7 +53,7 @@ newtype Parser LispVal = Parser (Text -> [(LispVal,Text)])
 Thus, a Parser is a type consisting of a function that 1) takes some `Text` and 2) return a `LispVal` and some `Text`    
 
 
-## [Parser.hs](https://github.com/write-you-a-scheme-v2/scheme/tree/master/src/Parser.hs imports
+## [Parser.hs](https://github.com/write-you-a-scheme-v2/scheme/tree/master/src/Parser.hs) imports
 
 ```haskell
 import LispVal
