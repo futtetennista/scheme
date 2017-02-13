@@ -50,13 +50,13 @@ parseText = do
   return $ String . T.pack $  p
 
 parseNumber :: Parser LispVal
-parseNumber = Number . read <$> many1 digit
-
-parseNegNum :: Parser LispVal
-parseNegNum = do
-  char '-'
-  d <- many1 digit
-  return $ Number . negate . read $ d
+parseNumber = parseNegNum <|> Number . read <$> many1 digit
+  where
+    parseNegNum :: Parser LispVal
+    parseNegNum = do
+      char '-'
+      d <- many1 digit
+      return $ Number . negate . read $ d
 
 parseList :: Parser LispVal
 parseList = List . concat <$> Text.Parsec.many parseExpr `sepBy` (char ' ' <|> char '\n')
@@ -71,8 +71,7 @@ parseQuote = do
   return $ List [Atom "quote", x]
 
 parseExpr :: Parser LispVal
-parseExpr = parseReserved <|> parseNumber
-  <|> try parseNegNum
+parseExpr = parseReserved <|> try parseNumber
   <|> parseAtom
   <|> parseText
   <|> parseQuote
