@@ -127,7 +127,10 @@ applyLambda :: LispVal -> [LispVal] -> [LispVal] -> Eval LispVal
 applyLambda expr params args = do
   env <- ask
   argEval <- mapM eval args
-  local (const ((Map.fromList (zipWith (\a b -> (extractVar a,b)) params argEval)) <> env)) $ eval expr
+
+badLetFormException :: LispException
+badLetFormException =
+  BadSpecialForm "let function expects list of parameters and S-Expression body\n(let (<pairs>) <s-expr>)"
 
 
 eval :: LispVal -> Eval LispVal
@@ -164,13 +167,26 @@ eval (List [Atom "define", varExpr, expr]) = do --top-level define
   evalVal <- eval expr
   local (const $ Map.insert (extractVar varAtom) evalVal env) $ return varExpr
 
-eval (List [Atom "let", List pairs, expr]) = do
-  env   <- ask
-  atoms <- mapM ensureAtom $ getEven pairs
-  vals  <- mapM eval       $ getOdd  pairs
-  local (const (Map.fromList (zipWith (\a b -> (extractVar a, b)) atoms vals) <> env))  $ evalBody expr
-eval (List (Atom "let":_) ) = throw $ BadSpecialForm "let funciton expects list of parameters and S-Expression body\n(let <pairs> <s-expr>)"
+eval (List [Atom "let", pairs, expr]) =
+  do
+    (atoms, vals) <- evald pairs ([], [])
+    env <- ask
+    let newEnv = Map.fromList (zipWith (\a b -> (extractVar a, b)) atoms vals) <> env
+    local (const newEnv) $ evalBody expr
+      where
+        evald :: LispVal -> ([LispVal], [LispVal]) -> Eval ([LispVal], [LispVal])
+        evald (List []) acc = return acc
+        evald (List (List x:xs)) (atoms, vals) =
+          do
+            atom <- ensureAtom $ singletonResultOrThrow(getEven x)
+            val  <- eval $ singletonResultOrThrow(getOdd  x)
+            evald (List xs) ((atom : atoms), (val : vals))
+        evald _ _ = throw badLetFormException
 
+        singletonResultOrThrow ys =
+          if Prelude.null ys then throw badLetFormException else head ys
+
+eval (List (Atom "let":_) ) = throw badLetFormException
 
 eval (List [Atom "lambda", List params, expr]) = do
   envLocal <- ask
