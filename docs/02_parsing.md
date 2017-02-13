@@ -202,7 +202,7 @@ readExprFile = parse (contents parseList) "<file>"
 ```
 `contents` is a wrapper for a Parser that allows leading whitespace and a terminal end of file (eof).
 For `readExpr` and `readExprFile` we are using Parsec's `parse` function, which takes a parser, and a `Text` input describing the input source.
-`readExpr` is used for the REPL, and `readExprFile`, which uses our `parseList` and can handle newline or whitespace delimmited S-Expressions, for program files.
+`readExpr` is used for the REPL, and `readExprFile`, which uses our `parseList` and can handle newline or whitespace delimited S-Expressions, for program files.
 
 #### Conclusion
 
